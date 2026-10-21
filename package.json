@@ -1,0 +1,35 @@
+{
+  "name": "date-planner",
+  "private": true,
+  "version": "0.0.0",
+  "packageManager": "pnpm@11.25.0",
+  "engines": {
+    "node": ">=22.14.0 <23 || >=24.0.0",
+    "pnpm": "11.25.0"
+  },
+  "scripts": {
+    "dev": "pnpm --filter @date-planner/shared build && pnpm --filter @date-planner/api build && concurrently -k -n shared,web,api \"pnpm --filter @date-planner/shared dev\" \"pnpm --filter @date-planner/web dev\" \"pnpm --filter @date-planner/api dev\"",
+    "build": "pnpm -r build",
+    "lint": "eslint . --max-warnings 0",
+    "typecheck": "pnpm --filter @date-planner/shared build && pnpm -r typecheck",
+    "test": "pnpm --filter @date-planner/shared build && pnpm -r test",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "db:generate": "pnpm --filter @date-planner/api db:generate",
+    "db:validate": "pnpm --filter @date-planner/api db:validate",
+    "db:migrate": "pnpm --filter @date-planner/api db:migrate",
+    "db:deploy": "pnpm --filter @date-planner/api db:deploy",
+    "db:studio": "pnpm --filter @date-planner/api db:studio"
+  },
+  "devDependencies": {
+    "@eslint/js": "10.0.1",
+    "@types/node": "^22.0.0",
+    "concurrently": "^9.2.1",
+    "eslint": "^10.13.0",
+    "eslint-config-prettier": "^10.1.8",
+    "globals": "^16.4.0",
+    "prettier": "3.9.10",
+    "typescript": "~5.9.3",
+    "typescript-eslint": "8.72.0"
+  }
+}

@@ -1,0 +1,12 @@
+node_modules/
+dist/
+dist-test/
+coverage/
+.env
+.env.*
+!.env.example
+*.log
+*.tsbuildinfo
+apps/api/src/generated/
+.pnpm-store/
+.DS_Store
