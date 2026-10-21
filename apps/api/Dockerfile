@@ -8,7 +8,9 @@ COPY package.json pnpm-lock.yaml pnpm-workspace.yaml .npmrc ./
 COPY tsconfig.base.json ./tsconfig.base.json
 COPY apps ./apps
 COPY packages ./packages
-RUN pnpm install --frozen-lockfile && pnpm --filter @date-planner/api build
+RUN pnpm install --frozen-lockfile \
+    && pnpm --filter @date-planner/shared build \
+    && pnpm --filter @date-planner/api build
 ENV NODE_ENV=production
 WORKDIR /repo/apps/api
 EXPOSE 3000
