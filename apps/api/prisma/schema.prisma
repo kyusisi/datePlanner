@@ -1,0 +1,11 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+  moduleFormat = "esm"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// TASK-02 will introduce business models. TASK-01 only runs SELECT 1.
