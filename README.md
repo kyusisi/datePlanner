@@ -1,6 +1,6 @@
 # Date Planner
 
-저장소: [kyusisi/datePlanner](https://github.com/kyusisi/datePlanner). 작업은 기능·수정·설정 단위로 나누어 Conventional Commit 메시지로 관리합니다. 상세 작업 규칙은 [AGENTS.md](AGENTS.md)를 따릅니다.
+저장소: [kyusisi/datePlanner](https://github.com/kyusisi/datePlanner). 작업은 기능·수정·설정 단위로 나누고 커밋 메시지와 PR 제목·설명은 한국어로 작성합니다. 커밋 분류는 [커밋 정책](docs/커밋-정책.md), 작업 규칙은 [AGENTS.md](AGENTS.md)를 따릅니다.
 
 여러 커플이 함께 장소를 저장하고 데이트 일정을 관리할 모바일 웹 / PWA입니다. TASK-01은 개발 기반만 구성합니다. 로그인, 커플 연결, 장소 저장, 일정 편집, 지도 검색은 구현하지 않았습니다.
 

@@ -1,9 +1,10 @@
-# Repository workflow
+# 저장소 작업 규칙
 
-- Remote repository: https://github.com/kyusisi/datePlanner.git
-- Keep commits focused on one feature, fix, or configuration concern. Do not split every individual function into a separate commit or bundle unrelated work together.
-- Use descriptive Conventional Commit messages, such as `feat(api): add health endpoints` or `fix(web): handle API errors`.
-- Inspect Git status and existing changes before editing or committing. Preserve unrelated user work.
-- Run checks relevant to each change and report checks blocked by environment limitations accurately.
-- Never commit `.env`, credentials, `node_modules`, build outputs, generated Prisma Client, or local caches. Commit `.env.example` and `pnpm-lock.yaml`.
-- Preserve remote history. Do not force-push or rewrite published commits without explicit user authorization.
+- 원격 저장소: https://github.com/kyusisi/datePlanner.git
+- 커밋은 하나의 기능·오류 수정·설정 작업 단위로 나눕니다. 코드의 개별 함수마다 커밋을 만들거나 서로 무관한 변경을 한 커밋에 섞지 않습니다.
+- Git 커밋 메시지와 PR 제목·설명은 한국어로 작성합니다. 코드 식별자와 제품명은 필요하면 원래 표기를 유지합니다.
+- [docs/커밋-정책.md](docs/커밋-정책.md)의 한국어 분류 `추가`, `삭제`, `수정`, `그외`를 사용합니다. `feat`, `fix`와 같은 영어 분류 접두어는 사용하지 않습니다.
+- 수정이나 커밋 전에 Git 상태와 기존 변경사항을 확인하고, 관련 없는 사용자 작업은 보존합니다.
+- 변경 내용에 맞는 검사를 실행하고, 환경 제약으로 실행하지 못한 검사는 정확히 보고합니다.
+- `.env`, 인증 정보, `node_modules`, 빌드 결과물, 생성된 Prisma Client, 로컬 캐시는 커밋하지 않습니다. `.env.example`과 `pnpm-lock.yaml`은 커밋합니다.
+- 원격 기록을 보존합니다. 사용자가 명시적으로 허용하지 않았다면 강제 푸시하거나 공개된 커밋을 다시 작성하지 않습니다.
