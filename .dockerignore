@@ -1,0 +1,13 @@
+**/node_modules
+**/dist
+**/dist-test
+**/coverage
+.git
+.gitignore
+.env
+.env.*
+!.env.example
+*.log
+*.tsbuildinfo
+.pnpm-store
+.DS_Store

@@ -1,0 +1,119 @@
+name: Deploy production
+
+on:
+  pull_request:
+    branches: [master]
+  push:
+    branches: [master]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: production-deploy
+  cancel-in-progress: false
+
+jobs:
+  verify:
+    name: Verify
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 11.25.0
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22.14.0
+          cache: pnpm
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+      - name: Build
+        run: pnpm build
+      - name: Lint
+        run: pnpm lint
+      - name: Typecheck
+        run: pnpm typecheck
+      - name: Test
+        run: pnpm test
+
+  deploy:
+    name: Deploy to OCI
+    if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+    needs: verify
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+      - name: Check required deployment secrets
+        env:
+          OCI_HOST: ${{ secrets.OCI_HOST }}
+          OCI_USER: ${{ secrets.OCI_USER }}
+          OCI_SSH_KEY: ${{ secrets.OCI_SSH_KEY }}
+          OCI_KNOWN_HOSTS: ${{ secrets.OCI_KNOWN_HOSTS }}
+        run: |
+          missing=0
+          for name in OCI_HOST OCI_USER OCI_SSH_KEY OCI_KNOWN_HOSTS; do
+            if [ -z "${!name}" ]; then echo "Missing GitHub Actions secret: $name"; missing=1; fi
+          done
+          exit "$missing"
+      - name: Configure SSH
+        env:
+          OCI_SSH_KEY: ${{ secrets.OCI_SSH_KEY }}
+          OCI_KNOWN_HOSTS: ${{ secrets.OCI_KNOWN_HOSTS }}
+        run: |
+          install -m 700 -d ~/.ssh
+          printf '%s\n' "$OCI_SSH_KEY" > ~/.ssh/oci_deploy
+          chmod 600 ~/.ssh/oci_deploy
+          printf '%s\n' "$OCI_KNOWN_HOSTS" > ~/.ssh/known_hosts
+          chmod 600 ~/.ssh/known_hosts
+          ssh-keygen -y -f ~/.ssh/oci_deploy >/dev/null
+      - name: Package application
+        run: tar -czf /tmp/date-planner.tar.gz --exclude=.git --exclude=node_modules --exclude='**/node_modules' --exclude=.env --exclude=.env.production .
+      - name: Copy application to OCI
+        env:
+          OCI_HOST: ${{ secrets.OCI_HOST }}
+          OCI_USER: ${{ secrets.OCI_USER }}
+        run: scp -i ~/.ssh/oci_deploy -o BatchMode=yes -o StrictHostKeyChecking=yes /tmp/date-planner.tar.gz "$OCI_USER@$OCI_HOST:/tmp/date-planner.tar.gz"
+      - name: Deploy master to OCI
+        env:
+          OCI_HOST: ${{ secrets.OCI_HOST }}
+          OCI_USER: ${{ secrets.OCI_USER }}
+        run: |
+          ssh -i ~/.ssh/oci_deploy -o BatchMode=yes -o StrictHostKeyChecking=yes "$OCI_USER@$OCI_HOST" 'bash -se' <<'REMOTE'
+          set -euo pipefail
+          APP_DIR=/opt/date-planner
+          if [ ! -e "$APP_DIR" ]; then
+            sudo install -d -o "$(id -un)" -g "$(id -gn)" "$APP_DIR"
+          elif [ ! -d "$APP_DIR" ]; then
+            echo "Refusing to replace existing path: $APP_DIR" >&2; exit 1
+          fi
+          tar -xzf /tmp/date-planner.tar.gz -C "$APP_DIR"
+          rm -f /tmp/date-planner.tar.gz
+          cd "$APP_DIR"
+          if [ ! -f .env.production ]; then
+            umask 077
+            DB_PASSWORD=$(openssl rand -hex 32)
+            printf 'POSTGRES_DB=date_planner\nPOSTGRES_USER=date_planner\nPOSTGRES_PASSWORD=%s\nCORS_ORIGIN=http://134.185.118.13\n' "$DB_PASSWORD" > .env.production
+            chmod 600 .env.production
+          fi
+          sudo docker compose -p date-planner --env-file .env.production -f compose.production.yaml up -d --build
+          sudo bash deploy/install-nginx-site.sh
+          for attempt in $(seq 1 30); do
+            if curl --fail --silent http://127.0.0.1/api/v1/health >/dev/null; then break; fi
+            sleep 2
+          done
+          curl --fail --silent http://127.0.0.1/api/v1/health
+          curl --fail --silent http://127.0.0.1/api/v1/health/db
+          REMOTE
+      - name: Clean up uploaded package
+        if: always()
+        env:
+          OCI_HOST: ${{ secrets.OCI_HOST }}
+          OCI_USER: ${{ secrets.OCI_USER }}
+        run: ssh -i ~/.ssh/oci_deploy -o BatchMode=yes -o StrictHostKeyChecking=yes "$OCI_USER@$OCI_HOST" 'rm -f /tmp/date-planner.tar.gz' || true
