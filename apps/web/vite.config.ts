@@ -26,8 +26,8 @@ export default defineConfig(({ mode }) => {
           display: 'standalone',
           start_url: '/',
           scope: '/',
-          theme_color: '#ffffff',
-          background_color: '#ffffff',
+          theme_color: '#fff8fa',
+          background_color: '#fff8fa',
           lang: 'ko',
           icons: [
             {

@@ -23,23 +23,18 @@ export function Layout() {
       <a href="#main" className="sr-only focus:not-sr-only">
         본문으로 이동
       </a>
-      <header className="flex items-center justify-between border-b border-stone-200 px-6 py-5">
-        <Link
-          to="/"
-          className="flex items-center gap-2 font-semibold tracking-tight"
-        >
-          <Heart size={20} aria-hidden="true" />
-          Date Planner
+      <header className="site-header">
+        <Link to="/" className="brand-link">
+          <span className="brand-symbol">
+            <Heart size={16} fill="currentColor" aria-hidden="true" />
+          </span>
+          <span>Date Planner</span>
         </Link>
-        <Link
-          to="/settings"
-          aria-label="설정"
-          className="rounded-full p-2 hover:bg-stone-100"
-        >
+        <Link to="/settings" aria-label="설정" className="settings-link">
           <Settings size={20} />
         </Link>
       </header>
-      <main id="main" className="flex-1 px-6 pt-10 pb-32">
+      <main id="main" className="app-main flex-1">
         {state === 'loading' ? <LoadingState /> : <Outlet />}
       </main>
       <nav aria-label="주 메뉴" className="bottom-nav">
@@ -49,7 +44,7 @@ export function Layout() {
             to={to}
             end={to === '/'}
             className={({ isActive }) =>
-              `flex min-h-16 flex-1 flex-col items-center justify-center gap-1 rounded-2xl text-xs ${isActive ? 'bg-emerald-50 text-emerald-900' : 'text-stone-500 hover:bg-stone-50'}`
+              `flex min-h-16 flex-1 flex-col items-center justify-center gap-1 rounded-2xl text-xs ${isActive ? 'is-active' : ''}`
             }
           >
             <Icon size={21} aria-hidden="true" />
