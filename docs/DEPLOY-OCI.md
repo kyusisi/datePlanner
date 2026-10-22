@@ -16,6 +16,8 @@ The `master` push job in `.github/workflows/deploy-production.yml` runs the CI c
 
 Never commit `.env.production`, SSH keys, PostgreSQL passwords, or Kakao API keys. The first successful deployment creates `/opt/date-planner/.env.production` with a generated PostgreSQL password and file mode `0600`. Keep that file and the Compose volume when redeploying.
 
+For a manual first launch, copy `.env.production.example` to `.env.production`, replace the password placeholder with a strong random value, and set the file mode to `0600`. Keep `.env.production` on the server only.
+
 ## OCI layout and ports
 
 - `/opt/date-planner`: application and Compose files
